@@ -7,9 +7,10 @@
 class Tree {
 private:
     Person* root;
+    std::string name;
 
 public:
-    Tree(Person* root);
+    Tree(Person* root, std::string name);
     void addMom(Person mom);
     void addDad(Person dad);
     void addGrandmaMom(Person grandma);

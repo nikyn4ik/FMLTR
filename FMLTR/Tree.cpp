@@ -1,8 +1,9 @@
 #include "Tree.h"
 #include <iostream>
 
-Tree::Tree(Person* root) {
+Tree::Tree(Person* root, std::string name) {
     this->root = root;
+    this->name = name;
 }
 
 void Tree::addMom(Person mom) {
@@ -12,6 +13,7 @@ void Tree::addMom(Person mom) {
 void Tree::addDad(Person dad) {
     this->root->setFather(new Person(dad));
 }
+
 
 void Tree::addGrandmaMom(Person grandma) {
     if (this->root->getMother() == nullptr) {
@@ -69,5 +71,7 @@ void printPerson(Person* person, int depth, int generation) {
 }
 
 void Tree::printTree() {
-    printPerson(this->root, 0, 1);
+    std::cout << "Family Tree: " << name << std::endl;
+    std::cout << "--------------------------" << std::endl;
+    printPerson(root, 0, 0);
 }
