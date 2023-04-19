@@ -4,6 +4,9 @@
 #include "Tree.h"
 #include <iostream>
 #include <regex>
+#include <vector>
+#include "Person.h"
+using namespace std;
 
 bool checkName(const std::string& name) {
     for (const char& c : name) {
@@ -22,176 +25,101 @@ bool checkDate(const std::string& date) {
     std::regex regex("\\d{4}-\\d{2}-\\d{2}");
     return std::regex_match(date, regex);
 }
+
 //добавить меню, сохранение сравнение и тд
 int main() {
-    std::string myName, momName, dadName, grandmaName, grandpaName, grandmaName2, grandpaName2;
-    std::string myBirth, momBirth, dadBirth, grandmaBirth, grandpaBirth, grandmaBirth2, grandpaBirth2;
-    std::string momDeath, dadDeath, grandmaDeath, grandpaDeath, grandmaDeath2, grandpaDeath2;
-    bool addMom = true, addDad = true;
+    std::vector<Tree> trees;
+    bool running = true;
+    int choice;
+    int treeIndex = 0;
 
-    std::cout << "Enter your name: "; //ME
-    std::getline(std::cin, myName);
-    while (!checkName(myName)) {
-        std::cout << "Invalid name. Please enter a name containing only letters: ";
-        std::getline(std::cin, myName);
-    }
-    std::cout << "Enter your's date of birth (YYYY-MM-DD): ";
-    std::getline(std::cin, myBirth);
-    while (!checkDate(myBirth)) {
-        std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-        std::getline(std::cin, myBirth);
-    }
-    Person me(myName, myBirth);
+    while (running) {
 
-    std::cout << "Do you want to add your mother? (y/n) "; //ADD MOM
-    char answer;
-    std::cin >> answer;
-    while (!checkChoice(answer)) {
-        std::cout << "Invalid choice. Please enter either 'y' or 'n': ";
-        std::cin >> answer;
-    }
-    std::cin.ignore();
-    if (answer == 'n') {
-        addMom = false;
-    }
-    std::cout << "Do you want to add your father? (y/n) "; //ADD DAD
-    std::cin >> answer;
-    while (!checkChoice(answer)) {
-        std::cout << "Invalid choice. Please enter either 'y' or 'n': ";
-        std::cin >> answer;
-    }
-    std::cin.ignore();
-    if (answer == 'n') {
-        addDad = false;
-    }
-    if (addDad || addMom) {
-        if (addMom) {
-            std::cout << "Enter your mother's name: "; //MOM
-            std::getline(std::cin, momName);
-            while (!checkName(momName)) {
-                std::cout << "Invalid name. Please enter a name containing only letters: ";
-                std::getline(std::cin, momName);
+        cout << "What would you like to do?" << endl;
+        cout << "1. Create a family tree" << endl;
+        cout << "2. Add a family member" << endl;
+        cout << "3. Print the current family tree" << endl;
+        cout << "4. Exit" << endl;
+        cin >> choice;
+
+        switch (choice) {
+
+        case 1: {
+            string name;
+            string dob;
+
+            cout << "What is the name of the root person?" << endl;
+            cin >> name;
+
+            cout << "What is the date of birth of " << name << "?" << endl;
+            cin >> dob;
+
+            Person* root = new Person(name, dob);
+            Tree tree(root, name);
+            trees.push_back(tree);
+            treeIndex = trees.size() - 1;
+            break;
+        }
+
+        case 2: {
+            if (trees.size() == 0) {
+                cout << "No family tree created yet. Please create a tree first." << endl;
+                break;
             }
-            std::cout << "Enter your mother's date of birth (YYYY-MM-DD): ";
-            std::getline(std::cin, momBirth);
-            while (!checkDate(momBirth)) {
-                std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                std::getline(std::cin, momBirth);
+            int choice2;
+            string name, dob;
+
+            cout << "Which family member would you like to add to?" << endl;
+            cout << "1. Root person" << endl;
+            cout << "2. Mother of root person" << endl;
+            cout << "3. Father of root person" << endl;
+            cin >> choice2;
+
+            cout << "What is the name of the new family member?" << endl;
+            cin >> name;
+
+            cout << "What is the date of birth of " << name << "?" << endl;
+            cin >> dob;
+
+            Person* person = new Person(name, dob);
+
+            switch (choice2) {
+
+            case 1:
+                trees[treeIndex].addPerson(*person);
+                break;
+
+            case 2:
+                //exit
+                break;
             }
-            std::cout << "Enter your mother's date of death (if alive enter '-'): ";
-            std::getline(std::cin, momDeath);
-            Person mom(momName, momBirth, momDeath);
+            break;
+        }
 
-            std::cout << "Enter your mother's mother's name: "; //GRANDMOM MOM
-            std::getline(std::cin, grandmaName);
-            while (!checkName(grandmaName)) {
-                std::cout << "Invalid name. Please enter a name containing only letters: ";
-                std::getline(std::cin, grandmaName);
+        case 3: {
+            if (trees.size() == 0) {
+                cout << "No family tree created yet. Please create a tree first." << endl;
+                break;
             }
-            std::cout << "Enter your mother's mother's date of birth (YYYY-MM-DD): ";
-            std::getline(std::cin, grandmaBirth);
-            while (!checkDate(grandmaBirth)) {
-                std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                std::getline(std::cin, grandmaBirth);
-            }
-            std::cout << "Enter your mother's mother's date of death (if alive enter '-'): ";
-            std::getline(std::cin, grandmaDeath);
-            Person grandma(grandmaName, grandmaBirth, grandmaDeath);
+            trees[treeIndex].printTree();
+            break;
+        }
 
-            std::cout << "Enter your mother's father's name: "; //GRANDPA MOM
-            std::getline(std::cin, grandpaName);
-            while (!checkName(grandpaName)) {
-                std::cout << "Invalid name. Please enter a name containing only letters: ";
-                std::getline(std::cin, grandpaName);
-            }
-            std::cout << "Enter your mother's father's date of birth (YYYY-MM-DD): ";
-            std::getline(std::cin, grandpaBirth);
-            while (!checkDate(grandpaBirth)) {
-                std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                std::getline(std::cin, grandpaBirth);
-            }
-            std::cout << "Enter your mother's father's date of death (if alive enter '-'): ";
-            std::getline(std::cin, grandpaDeath);
-            Person grandpa(grandpaName, grandpaBirth, grandpaDeath);
+        case 4: {
+            cout << "Exiting the program..." << endl;
+            running = false;
+            break;
+        }
 
-
-            if (addDad) {
-                std::cout << "Enter your father's name: "; //DAD
-                std::getline(std::cin, dadName);
-                while (!checkName(dadName)) {
-                    std::cout << "Invalid name. Please enter a name containing only letters: ";
-                    std::getline(std::cin, dadName);
-                }
-                std::cout << "Enter your father's date of birth (YYYY-MM-DD): ";
-                std::getline(std::cin, dadBirth);
-                while (!checkDate(dadBirth)) {
-                    std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                    std::getline(std::cin, dadBirth);
-                }
-                std::cout << "Enter your father's date of death (if alive enter '-'): ";
-                std::getline(std::cin, dadDeath);
-                Person dad(dadName, dadBirth, dadDeath);
-
-                std::cout << "Enter your father's mother's name: "; //GRANDMA DAD
-                std::getline(std::cin, grandmaName2);
-                while (!checkName(grandmaName2)) {
-                    std::cout << "Invalid name. Please enter a name containing only letters: ";
-                    std::getline(std::cin, grandmaName2);
-                }
-                std::cout << "Enter your father's mother's date of birth (YYYY-MM-DD): ";
-                std::getline(std::cin, grandmaBirth2);
-                while (!checkDate(grandmaBirth2)) {
-                    std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                    std::getline(std::cin, grandmaBirth2);
-                }
-                std::cout << "Enter your father's mother's date of death (if alive enter '-'): ";
-                std::getline(std::cin, grandmaDeath2);
-                Person grandma2(grandmaName2, grandmaBirth2, grandmaDeath2);
-
-                std::cout << "Enter your father's father's name: "; //GRANDPA DAD
-                std::getline(std::cin, grandpaName2);
-                while (!checkName(grandpaName2)) {
-                    std::cout << "Invalid name. Please enter a name containing only letters: ";
-                    std::getline(std::cin, grandpaName2);
-                }
-                std::cout << "Enter your father's father's date of birth (YYYY-MM-DD): "; 
-                std::getline(std::cin, grandpaName2);
-                while (!checkDate(grandpaName2)) {
-                    std::cout << "Invalid date. Please enter a date in the format YYYY-MM-DD: ";
-                    std::getline(std::cin, grandpaName2);
-                }
-                std::cout << "Enter your father's father's date of death (if alive enter '-'): ";
-                std::getline(std::cin, grandpaDeath2);
-                Person grandpa2(grandpaName2, grandpaBirth2, grandpaDeath2);
-
-                std::string treeName;
-                std::cout << "Enter the name of the tree: ";
-                std::getline(std::cin, treeName);
-                //Tree familyTree(&me);
-                Tree familyTree(&me, treeName);
-                familyTree.addMom(mom);
-                familyTree.addDad(dad);
-                familyTree.addGrandmaMom(grandmaName);
-                familyTree.addGrandpaMom(grandpaName);
-                familyTree.addGrandmaDad(grandmaName2);
-                familyTree.addGrandpaDad(grandpaName2);
-                familyTree.printTree();
-            }
-
-            else {
-
-                std::string treeName;
-                std::cout << "Enter the name of the tree: " << std::endl;;
-                std::getline(std::cin, treeName);
-                Tree familyTree(&me, treeName);
-                familyTree.printTree();
-            }
-
-            return 0;
+        default: {
+            cout << "Invalid choice. Please try again." << endl;
+            break;
+        }
         }
     }
-}
 
+    return 0;
+}
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu

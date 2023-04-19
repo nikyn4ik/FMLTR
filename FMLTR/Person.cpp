@@ -1,45 +1,32 @@
 #include "Person.h"
 
 Person::Person(std::string name, std::string dateOfBirth, std::string dateOfDeath) {
-	this->name = name;
-	this->dateOfBirth = dateOfBirth;
-	this->dateOfDeath = dateOfDeath;
-	this->mother = nullptr;
-	this->father = nullptr;
+    this->name = name;
+    this->dateOfBirth = dateOfBirth;
+    this->dateOfDeath = dateOfDeath;
+    this->person = nullptr;
 }
 
-void Person::setMother(Person* mother) {
-	this->mother = mother;
-}
-
-void Person::setFather(Person* father) {
-	this->father = father;
+void Person::setPerson(Person* person) {
+    this->person = person;
 }
 
 void Person::setDateOfBirth(std::string dateOfBirth) {
-	this->dateOfBirth = dateOfBirth;
+    this->dateOfBirth = dateOfBirth;
 }
 
 void Person::setDateOfDeath(std::string dateOfDeath) {
-	this->dateOfDeath = dateOfDeath;
+    this->dateOfDeath = dateOfDeath;
 }
 
-std::string Person::getName() {
-	return this->name;
+std::string Person::getName() const {
+    return this->name;
 }
 
-std::string Person::getDateOfBirth() {
-	return this->dateOfBirth;
+std::string Person::getDateOfBirth() const {
+    return this->dateOfBirth;
 }
 
-std::string Person::getDateOfDeath() {
-	return this->dateOfDeath;
-}
-
-Person* Person::getMother() {
-	return this->mother;
-}
-
-Person* Person::getFather() {
-	return this->father;
+std::string Person::getDateOfDeath() const {
+    return this->dateOfDeath;
 }

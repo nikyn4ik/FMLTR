@@ -11,13 +11,9 @@ private:
 
 public:
     Tree(Person* root, std::string name);
-    void addMom(Person mom);
-    void addDad(Person dad);
-    void addGrandmaMom(Person grandma);
-    void addGrandpaMom(Person grandpa);
-    void addGrandmaDad(Person grandma);
-    void addGrandpaDad(Person grandpa);
+    void addPerson(Person person);
+    void printPerson(Person* person, int depth, int generation);
     void printTree();
+    void print();
 };
-
 #endif
