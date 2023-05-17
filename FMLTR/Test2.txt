@@ -1,0 +1,13 @@
+Family Tree
+
+Veronika (generation 0, 01.01.2000)
+  Mother: Irina
+
+Irina (generation 1, 01.01.2000)
+  Mother: Albina
+
+Albina (generation 2, 01.01.2000)
+  Mother: Name
+
+Name (generation 3, 01.01.2000)
+

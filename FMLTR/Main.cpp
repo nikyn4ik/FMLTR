@@ -1,124 +1,210 @@
 // Main.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 
-#include "Tree.h"
+/*—оздание семейного древа :
+1. ¬ывод семейного древа
+2. —охранение семейного древа
+3. —равнение поколений в семейном древе */
+
+//директивы
 #include <iostream>
-#include <regex>
+#include <fstream>
+#include <string>
+#include <map>
 #include <vector>
+#include <sstream>
+#include <regex>
 #include "Person.h"
-using namespace std;
 
-bool checkName(const std::string& name) {
-    for (const char& c : name) {
-        if (!std::isalpha(c)) {
-            return false;
-        }
-    }
-    return true;
+Person::Person(std::string n, std::string d, Person* m, Person* f) { //конструктор "Person"
+	name = n;
+	dob = d;
+	mother = m;
+	father = f;
+	if (m == 0) {
+		generation = 0;
+	}
+	else {
+		generation = 1;
+	}
 }
 
-bool checkChoice(char choice) {
-    return choice == 'y' || choice == 'n';
+void Person::addChild(Person* child) { //метод addChild
+	try {
+		if (child == 0) {
+			throw std::invalid_argument("Invalid child. Child cannot be null.");
+		}
+		children.push_back(child);
+		generation = child->generation + 1;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Exception in addChild: " << e.what() << std::endl;
+	}
 }
+
+void Person::setMother(Person* m) {//метод setMother
+	mother = m;
+	try {
+		if (m == 0) {
+			throw std::invalid_argument("Invalid mother. Mother cannot be null.");
+		}
+		m->addChild(this);
+		generation = m->generation - 1;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Exception in setMother: " << e.what() << std::endl;
+	}
+}
+
+void Person::setFather(Person* f) {//метод setFather
+	father = f;
+	try {
+		if (f == 0) {
+			throw std::invalid_argument("Invalid father. Father cannot be null.");
+		}
+		f->addChild(this);
+		generation = f->generation - 1;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Exception in setFather: " << e.what() << std::endl;
+	}
+}
+
+void Person::printTree(int depth) { //вывод дерева
+	try {
+		for (int i = 0; i < depth; i++) {
+			std::cout << "  ";
+		}
+		std::cout << "-> " << name << " (generation " << generation << ", " << dob;
+		if (dod != "") {
+			std::cout << " - " << dod;
+		}
+		std::cout << ")" << std::endl;
+		if (mother != 0) {
+			mother->printTree(depth + 1);
+		}
+		if (father != 0) {
+			father->printTree(depth + 1);
+		}
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Exception in printTree: " << e.what() << std::endl;
+	}
+};
+
+bool checkName(const std::string& name, const std::map<std::string, Person*>& people) {
+	\
+		std::regex namePattern("^[a-zA-Z]+$");
+	return std::regex_match(name, namePattern);
+}
+
 
 bool checkDate(const std::string& date) {
-    std::regex regex("\\d{4}-\\d{2}-\\d{2}");
-    return std::regex_match(date, regex);
+	\
+		std::regex datePattern("^\\d{2}-\\d{2}-\\d{4}$");
+	return std::regex_match(date, datePattern);
 }
 
-//добавить меню, сохранение сравнение и тд
-int main() {
-    std::vector<Tree> trees;
-    bool running = true;
-    int choice;
-    int treeIndex = 0;
 
-    while (running) {
+bool checkChoice(int choice) {
+	return choice >= 1 && choice <= 3;
+}
 
-        cout << "What would you like to do?" << endl;
-        cout << "1. Create a family tree" << endl;
-        cout << "2. Add a family member" << endl;
-        cout << "3. Print the current family tree" << endl;
-        cout << "4. Exit" << endl;
-        cin >> choice;
+void saveTree(Person* root) { //сохранение дерева в файл
+	std::string filename;
+	std::cout << "Enter file name or file path to save the family tree: ";
+	std::cin >> filename;
+	std::string fileformat = filename.substr(filename.find_last_of(".") + 1);
 
-        switch (choice) {
+	try {
+		std::ofstream file(filename);
+		if (!file.is_open()) {
+			throw std::runtime_error("Failed to open file for writing!");
+		}
 
-        case 1: {
-            string name;
-            string dob;
+		file << "Family Tree\n\n";
+		std::map<Person*, int> generationMap;
 
-            cout << "What is the name of the root person?" << endl;
-            cin >> name;
+		int currentGeneration = 0;
+		std::vector<Person*> currentLevel, nextLevel;
+		currentLevel.push_back(root);
+		generationMap[root] = 0;
 
-            cout << "What is the date of birth of " << name << "?" << endl;
-            cin >> dob;
+		while (!currentLevel.empty()) {
+			for (Person* person : currentLevel) {
+				file << person->name << " (generation " << generationMap[person] << ", " << person->dob;
+				if (person->dod != "") {
+					file << " - " << person->dod;
+				}
+				file << ")\n";
+				if (person->mother != 0) {
+					file << "  Mother: " << person->mother->name << "\n";
+					nextLevel.push_back(person->mother);
+					generationMap[person->mother] = generationMap[person] + 1;
+				}
+				if (person->father != 0) {
+					file << "  Father: " << person->father->name << "\n";
+					nextLevel.push_back(person->father);
+					generationMap[person->father] = generationMap[person] + 1;
+				}
+			}
+			file << "\n";
+			currentLevel = nextLevel;
+			nextLevel.clear();
+		}
 
-            Person* root = new Person(name, dob);
-            Tree tree(root, name);
-            trees.push_back(tree);
-            treeIndex = trees.size() - 1;
-            break;
-        }
+		file.close();
+		std::cout << "Family tree saved to " << filename << " (" << fileformat << " format)" << std::endl;
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	}
+}
 
-        case 2: {
-            if (trees.size() == 0) {
-                cout << "No family tree created yet. Please create a tree first." << endl;
-                break;
-            }
-            int choice2;
-            string name, dob;
+void addRelationship(std::map<std::string, Person*>& people) { //добавление св€зей между родственниками
+	std::string childName, parentName;
+	int relationshipType;
 
-            cout << "Which family member would you like to add to?" << endl;
-            cout << "1. Root person" << endl;
-            cout << "2. Mother of root person" << endl;
-            cout << "3. Father of root person" << endl;
-            cin >> choice2;
+	try {
+		std::cout << "Enter the name of the child: ";
+		std::cin >> childName;
+		if (!checkName(childName, people)) {
+			throw std::runtime_error("A person with this name does not exist.");
+		}
 
-            cout << "What is the name of the new family member?" << endl;
-            cin >> name;
+		std::cout << "Enter the name of the parent: ";
+		std::cin >> parentName;
+		if (!checkName(parentName, people)) {
+			throw std::runtime_error("A person with this name does not exist.");
+		}
 
-            cout << "What is the date of birth of " << name << "?" << endl;
-            cin >> dob;
+		std::cout << "Select relationship type:" << std::endl;
+		std::cout << "1. Mother" << std::endl;
+		std::cout << "2. Father" << std::endl;
+		std::cin >> relationshipType;
+		if (!checkChoice(relationshipType)) {
+			throw std::runtime_error("Invalid choice.");
+		}
 
-            Person* person = new Person(name, dob);
+		Person* child = people[childName];
+		Person* parent = people[parentName];
+		if (relationshipType == 1) {
+			if (child->mother != 0) {
+				throw std::runtime_error(childName + " already has a mother.");
+			}
+			child->setMother(parent);
+		}
+		else {
+			if (child->father != 0) {
+				throw std::runtime_error(childName + " already has a father.");
+			}
+			child->setFather(parent);
+		}
 
-            switch (choice2) {
-
-            case 1:
-                trees[treeIndex].addPerson(*person);
-                break;
-
-            case 2:
-                //exit
-                break;
-            }
-            break;
-        }
-
-        case 3: {
-            if (trees.size() == 0) {
-                cout << "No family tree created yet. Please create a tree first." << endl;
-                break;
-            }
-            trees[treeIndex].printTree();
-            break;
-        }
-
-        case 4: {
-            cout << "Exiting the program..." << endl;
-            running = false;
-            break;
-        }
-
-        default: {
-            cout << "Invalid choice. Please try again." << endl;
-            break;
-        }
-        }
-    }
-
-    return 0;
+		std::cout << "Relationship added." << std::endl;
+	}
+	catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
